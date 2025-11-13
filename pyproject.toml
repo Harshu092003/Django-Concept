@@ -1,4 +1,5 @@
 [project]
+
 name = "django-concept"
 version = "0.1.0"
 description = ""
@@ -12,10 +13,13 @@ dependencies = [
     "djangorestframework (>=3.16.1,<4.0.0)"
 ]
 
+[tool.poetry]
+package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
 
 [dependency-groups]
 dev = [
@@ -23,3 +27,6 @@ dev = [
     "isort (>=7.0.0,<8.0.0)",
     "black (>=25.9.0,<26.0.0)"
 ]
+
+
+
