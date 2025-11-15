@@ -24,9 +24,10 @@ from myapp import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(urls)),
-    path('', views.show_employees, name='show_employees'),
-    path('filter/', views.filter_example, name='show_employee_with_filters'),
-    path('aggregate/', views.aggregate_example, name='show_aggregate_data'),
-    path('update/', views.update_example, name='update_example'),
-
+    path("", views.show_employees, name="show_employees"),
+    path("filter/", views.filter_example, name="show_employee_with_filters"),
+    path("aggregate/", views.aggregate_example, name="show_aggregate_data"),
+    path("update/", views.update_example, name="update_example"),
+    path("chat/", views.chat, name="chat"),
+    path("sound/", views.sound, name="sound"),
 ]

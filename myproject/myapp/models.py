@@ -1,6 +1,6 @@
-
 from django.db import models
 from django.utils import timezone
+
 
 # Create your models here.
 class Profile(models.Model):
@@ -9,6 +9,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Employee(models.Model):
     emp_id = models.AutoField(primary_key=True)
@@ -24,7 +25,9 @@ class Employee(models.Model):
 
 
 class Salary(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name="salaries")
+    employee = models.ForeignKey(
+        Employee, on_delete=models.CASCADE, related_name="salaries"
+    )
     basic = models.DecimalField(max_digits=10, decimal_places=2)
     hra = models.DecimalField(max_digits=10, decimal_places=2)
     da = models.DecimalField(max_digits=10, decimal_places=2)

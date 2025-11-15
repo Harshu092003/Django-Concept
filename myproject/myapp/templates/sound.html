@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sound Language Transcript</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap');
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Source Sans Pro', sans-serif;
+                background: #f5f5f5;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+
+        /* Header Section */
+            .header {
+                background: linear-gradient(135deg, #083fe3 0%, #0a56ff 100%);
+                color: white;
+                padding: 15px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .header-item {
+                font-size: 14px;
+            }
+
+            .header-item strong {
+                font-weight: 600;
+            }
+
+        /* Audio Section */
+            .audio-section {
+                padding: 20px;
+                background: #fff;
+            }
+
+        /* Combined Visualization Container */
+            .visualization-container {
+                position: relative;
+                height: 280px;
+                background: #fafafa;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                overflow: hidden;
+            }
+
+        /* Waveform (Top Section) */
+            .waveform-section {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 120px;
+                background: #fff;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .waveform-canvas {
+                width: 100%;
+                height: 100%;
+            }
+
+        /* Visual Timeline Section */
+            .segments-visual-section {
+                margin-top: -80px;
+                width: 100%;
+                
+            }
+
+/* Each speaker row */
+            .speaker-row {
+                display: flex;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+
+            .speaker-label {
+    margin-left: 10px;
+    width: 80px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-top: -5px;
+
+    /* FIX */
+    position: relative;
+    z-index: 10;
+}
+
+
+/* The gray whole track */
+            .timeline-track {
+                position: relative;
+                height: 18px;
+                background: #e6e6e6;              /* Light gray track background */
+                border: 2px solid #c9c9c9;        /* Slight darker outline */
+                border-radius: 4px;
+                flex: 1;
+            }
+
+/* Colored segment region */
+            .timeline-segment {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                background: #e49800;              /* ATC orange */
+                border-top: 2px solid #000;       /* Black ticks */
+                border-bottom: 2px solid #000;    /* Black ticks */
+            }
+
+/* Alternate track (Pilot) */
+            .timeline-segment.pilot {
+                background: #59b2ff;              /* Blue */
+            }
+
+/* White gaps inside bar */
+            .timeline-gap {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                background: white;
+                border-left: 2px solid #000;      /* Black vertical tick */
+                border-right: 2px solid #000;     /* Black vertical tick */
+            }
+
+
+        /* Spectrogram (Bottom Section) */
+            .spectrogram-section {
+                position: absolute;
+                top: 100px;
+                left: 0;
+                right: 0;
+                height: 100px;
+                background: #fff;
+                
+            }
+
+            .frequency-line {
+                position: absolute;
+                left: 50px;
+                right: 0;
+                height: 15px;
+                border-radius: 2px;
+            }
+
+            .freq-8k {
+                top: 10px;
+                background: linear-gradient(90deg, #fb713f 0%, #fb8f5f 50%, #fb713f 100%);
+            }
+
+            .freq-4k {
+                top: 32px;
+                background: linear-gradient(90deg, #f59866 0%, #f5b386 50%, #f59866 100%);
+            }
+
+            .freq-2k {
+                top: 54px;
+                background: linear-gradient(90deg, #e9c05e 0%, #e9d17e 50%, #e9c05e 100%);
+            }
+
+            .freq-1k {
+                top: 76px;
+                background: linear-gradient(90deg, #e7df5f 0%, #e7e77f 50%, #e7df5f 100%);
+            }
+
+            .frequency-labels {
+                position: absolute;
+                left: 10px;
+                top: 5px;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                color: #333;
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+        /* Progress Lines for all sections */
+            .progress-line {
+                position: absolute;
+                left: 0%;
+                width: 2px;
+                background: #e10606;
+                z-index: 100;
+                transition: left 0.1s linear;
+            }
+
+            .waveform-progress {
+                top: 0;
+                height: 120px;
+            }
+
+            .segments-progress {
+                top: 120px;
+                height: 60px;
+            }
+
+            .spectrogram-progress {
+                top: 180px;
+                height: 100px;
+            }
+
+        /* Audio Controls - Below Visualization */
+            .audio-controls {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 20px;
+                padding: 0 10px;
+            }
+
+            .play-btn-container {
+                flex: 0 0 auto;
+            }
+
+            .play-btn {
+                width: 50px;
+                height: 50px;
+                background: #083fe3;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s;
+            }
+
+            .play-btn:hover {
+                background: #0a56ff;
+                transform: scale(1.05);
+            }
+
+            .play-btn svg {
+                width: 20px;
+                height: 20px;
+                fill: white;
+            }
+
+            .time-display-container {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+            }
+
+            .time-display {
+                font-size: 18px;
+                color: #72817e;
+                font-weight: 500;
+            }
+
+            .volume-control-container {
+                flex: 0 0 auto;
+            }
+
+            .volume-control {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .volume-slider {
+                width: 150px;
+            }
+
+        /* Transcript Headers */
+            .transcript-headers {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                padding: 15px 20px;
+                background: #f4f4f5;
+                border-bottom: 2px solid #ddd;
+                margin-top: 20px;
+            }
+
+            .transcript-header {
+                font-weight: 600;
+                font-size: 16px;
+                color: #333;
+            }
+
+        /* Transcript Segments */
+            .segments-container {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+
+            .segment {
+                border-bottom: 1px solid #eee;
+                padding: 20px;
+                transition: background 0.2s;
+            }
+
+            .segment:hover {
+                background: #f9f9f9;
+            }
+
+            .segment.active {
+                background: #e8f4ff;
+                border-left: 4px solid #083fe3;
+            }
+
+            .segment-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .speaker-name {
+                font-weight: 600;
+                color: #083fe3;
+                font-size: 16px;
+            }
+
+            .timestamp {
+                color: #72817e;
+                font-size: 14px;
+            }
+
+            .segment-content {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+
+            .transcript-text {
+                padding: 10px;
+                background: #f8f9fa;
+                border-radius: 4px;
+                font-size: 15px;
+                line-height: 1.6;
+            }
+
+            .original-text {
+                border-left: 3px solid #083fe3;
+            }
+
+            .bhashantar-text {
+                border-left: 3px solid #28a745;
+            }
+
+            .lipyantar-text {
+                border-left: 3px solid #ffc107;
+            }
+
+        /* Scrollbar Styling */
+            .segments-container::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .segments-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            .segments-container::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+            }
+
+            .segments-container::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+
+        /* Responsive Design */
+            @media (max-width: 768px) {
+                .transcript-headers,
+                .segment-content {
+                    grid-template-columns: 1fr;
+                }
+
+                .header {
+                    font-size: 12px;
+                }
+
+                .audio-controls {
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: 15px;
+                }
+
+                .time-display-container {
+                    order: 3;
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+        <!-- Header with File Information -->
+            <div class="header">
+                <div class="header-item">
+                    <strong>File:</strong> {{ soundfile.filename }}
+                </div>
+                <div class="header-item">
+                    <strong>SR:</strong> {{ soundfile.sample_rate }}
+                </div>
+                <div class="header-item">
+                    <strong>Channels:</strong> {{ soundfile.channels }}
+                </div>
+                <div class="header-item">
+                    <strong>Bit Depth:</strong> {{ soundfile.bit_depth }}
+                </div>
+                <div class="header-item">
+                    <strong>Duration:</strong> {{ soundfile.duration }}
+                </div>
+            </div>
+
+        <!-- Audio Section -->
+            <div class="audio-section">
+            <!-- Combined Visualization: Waveform + Segments + Spectrogram -->
+                <div class="visualization-container">
+                <!-- 1. Waveform Section (Top) -->
+                    <div class="waveform-section">
+                        <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
+                    </div>
+
+                <!-- 3. Spectrogram Section (Bottom) -->
+                    <div class="spectrogram-section">
+                        <div class="frequency-labels">
+                            <div>8k</div>
+                            <div>4k</div>
+                            <div>2k</div>
+                            <div>1k</div>
+                        </div>
+                        <div class="frequency-line freq-8k"></div>
+                        <div class="frequency-line freq-4k"></div>
+                        <div class="frequency-line freq-2k"></div>
+                        <div class="frequency-line freq-1k"></div>
+                    </div>
+
+                <!-- Progress Lines -->
+                    <div class="progress-line waveform-progress" id="waveformProgress"></div>
+                    <div class="progress-line segments-progress" id="segmentsProgress"></div>
+                    <div class="progress-line spectrogram-progress" id="spectrogramProgress"></div>
+                </div>
+                <!-- 2. Segments Visual Section (Middle) -->
+                <div class="segments-visual-section">
+
+    <!-- Row 1 - ATC -->
+    <div class="speaker-row">
+        <div class="speaker-label">ATC</div>
+        <div class="timeline-track">
+            <div class="timeline-segment" style="left: 10%; width: 40%;"></div>
+            <div class="timeline-gap" style="left: 30%; width: 6%;"></div>
+            <div class="timeline-segment" style="left: 72%; width: 10%;"></div>
+        </div>
+    </div>
+
+    <!-- Row 2 - Pilot -->
+    <div class="speaker-row">
+        <div class="speaker-label">Pilot</div>
+        <div class="timeline-track">
+            <div class="timeline-segment pilot" style="left: 0%; width: 65%;"></div>
+            <div class="timeline-gap" style="left: 30%; width: 10%;"></div>
+            <div class="timeline-segment pilot" style="left: 75%; width: 15%;"></div>
+        </div>
+    </div>
+
+</div>
+
+
+            <!-- 4. Audio Controls (Below Visualization) -->
+                <div class="audio-controls">
+                <!-- Left: Play/Pause Button -->
+                    <div class="play-btn-container">
+                        <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                            <svg id="playIcon" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none;">
+                                <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                <!-- Center: Time Display -->
+                    <div class="time-display-container">
+                        <div class="time-display">
+                            <span id="currentTime">{{ soundfile.current_time }}</span> / {{ soundfile.duration }}
+                        </div>
+                    </div>
+
+                <!-- Right: Volume Control -->
+                    <div class="volume-control-container">
+                        <div class="volume-control">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#666">
+                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                            </svg>
+                            <input type="range" class="volume-slider" min="0" max="100" value="70">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Transcript Headers -->
+            <div class="transcript-headers">
+                <div class="transcript-header">Original Transcript</div>
+                <div class="transcript-header">Bhashantar (Translation)</div>
+                <div class="transcript-header">Lipyantar (Transliteration)</div>
+            </div>
+
+        <!-- Transcript Segments -->
+            <div class="segments-container">
+                {% for segment in segments %}
+                    <div class="segment" data-index="{{ forloop.counter0 }}" data-start="{{ segment.start }}" data-end="{{ segment.end }}">
+                        <div class="segment-header">
+                            <span class="speaker-name">{{ segment.speaker }}</span>
+                            <span class="timestamp">{{ segment.start }} - {{ segment.end }}</span>
+                        </div>
+                        <div class="segment-content">
+                            <div class="transcript-text original-text">
+                                {{ segment.original }}
+                            </div>
+                            <div class="transcript-text bhashantar-text">
+                                {{ segment.bhashantar }}
+                            </div>
+                            <div class="transcript-text lipyantar-text">
+                                {{ segment.lipyantar }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <script>
+            let isPlaying = false;
+            let currentProgress = 0;
+            let animationId = null;
+            const totalDuration = 322.340; // 05:22.340 in seconds
+
+        // Segments data (from Django template)
+            const segments = [
+                {% for segment in segments %}
+                    {
+                        speaker: "{{ segment.speaker }}",
+                        start: "{{ segment.start }}",
+                        end: "{{ segment.end }}",
+                        startSeconds: parseTime("{{ segment.start }}"),
+                        endSeconds: parseTime("{{ segment.end }}")
+                    }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+
+            function parseTime(timeStr) {
+                const parts = timeStr.split(':');
+                const minutes = parseInt(parts[0]);
+                const seconds = parseFloat(parts[1]);
+                return minutes * 60 + seconds;
+            }
+
+        // Draw waveform
+            function drawWaveform() {
+                const canvas = document.getElementById('waveformCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#083fe3';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+
+                const width = canvas.width;
+                const height = canvas.height;
+                const centerY = height / 2;
+
+            // Generate waveform based on segments
+                for (let x = 0; x < width; x += 1) {
+                    const progress = x / width;
+                    const time = progress * totalDuration;
+
+                // Vary amplitude based on segment
+                    let amplitude = 20;
+                    segments.forEach(seg => {
+                        if (time >= seg.startSeconds && time <= seg.endSeconds) {
+                            amplitude = 40 + Math.random() * 20;
+                        }
+                    });
+
+                    const y = centerY + (Math.sin(x * 0.1) * amplitude * Math.random());
+
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+
+                ctx.stroke();
+            }
+
+        // Create segment bars
+            function createSegmentBars() {
+                const container = document.getElementById('segmentsVisual');
+
+                segments.forEach((seg, index) => {
+                    const startPercent = (seg.startSeconds / totalDuration) * 100;
+                    const endPercent = (seg.endSeconds / totalDuration) * 100;
+                    const width = endPercent - startPercent;
+
+                    const bar = document.createElement('div');
+                    bar.className = `segment-bar speaker-${(index % 2) + 1}`;
+                    bar.style.left = startPercent + '%';
+                    bar.style.width = width + '%';
+                    bar.textContent = seg.speaker;
+                    bar.onclick = () => seekToSegment(index);
+
+                    container.appendChild(bar);
+                });
+            }
+
+            function togglePlay() {
+                isPlaying = !isPlaying;
+                const playIcon = document.getElementById('playIcon');
+                const pauseIcon = document.getElementById('pauseIcon');
+
+                if (isPlaying) {
+                    playIcon.style.display = 'none';
+                    pauseIcon.style.display = 'block';
+                    startProgress();
+                } else {
+                    playIcon.style.display = 'block';
+                    pauseIcon.style.display = 'none';
+                    stopProgress();
+                }
+            }
+
+            function startProgress() {
+                animationId = setInterval(() => {
+                    currentProgress += 0.3;
+
+                    if (currentProgress >= 100) {
+                        currentProgress = 0;
+                        togglePlay();
+                    }
+
+                    updateProgressLines();
+                    updateTime();
+                    highlightCurrentSegment();
+                }, 100);
+            }
+
+            function stopProgress() {
+                if (animationId) {
+                    clearInterval(animationId);
+                    animationId = null;
+                }
+            }
+
+            function updateProgressLines() {
+                const lines = ['waveformProgress', 'segmentsProgress', 'spectrogramProgress'];
+                lines.forEach(id => {
+                    document.getElementById(id).style.left = currentProgress + '%';
+                });
+            }
+
+            function updateTime() {
+                const currentSeconds = (currentProgress / 100) * totalDuration;
+                const minutes = Math.floor(currentSeconds / 60);
+                const seconds = Math.floor(currentSeconds % 60);
+                const milliseconds = Math.floor((currentSeconds % 1) * 1000);
+
+                const timeString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+                document.getElementById('currentTime').textContent = timeString;
+            }
+
+            function highlightCurrentSegment() {
+                const currentSeconds = (currentProgress / 100) * totalDuration;
+                const allSegments = document.querySelectorAll('.segment');
+
+                allSegments.forEach((seg, index) => {
+                    if (currentSeconds >= segments[index].startSeconds &&
+                        currentSeconds <= segments[index].endSeconds) {
+                            seg.classList.add('active');
+                        } else {
+                            seg.classList.remove('active');
+                        }
+                });
+            }
+
+            function seekToSegment(index) {
+                const startPercent = (segments[index].startSeconds / totalDuration) * 100;
+                currentProgress = startPercent;
+                updateProgressLines();
+                updateTime();
+                highlightCurrentSegment();
+            }
+
+        // Segment click to seek
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.segment').forEach((segment, index) => {
+                    segment.addEventListener('click', function() {
+                        seekToSegment(index);
+                    });
+                });
+            });
+
+        // Initialize
+            window.addEventListener('load', function() {
+                drawWaveform();
+                createSegmentBars();
+            });
+
+            window.addEventListener('resize', drawWaveform);
+        </script>
+    </body>
+</html>
