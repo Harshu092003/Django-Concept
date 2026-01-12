@@ -40,7 +40,16 @@ INSTALLED_APPS = [
     "myapp",
     "rest_framework",
     "channels",
+    "django.contrib.sites",
+    "api",
 ]
+AUTH_USER_MODEL = "auth.User"  # default
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
